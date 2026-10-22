@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوت سولانا المبسط | GMGN Paper Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --card: #131823;
+            --border: #1e2638;
+            --green: #10b981;
+            --red: #ef4444;
+            --purple: #8b5cf6;
+            --text: #f8fafc;
+            --muted: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Cairo', sans-serif;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* رأس الصفحة المبسط */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand h1 {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .tag {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-toggle {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--green);
+            border: 1px solid var(--green);
+        }
+        .btn-toggle.off {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .btn-reset {
+            background: #1e2638;
+            color: var(--muted);
+        }
+        .btn-reset:hover { color: var(--text); }
+
+        /* البطاقات الرئيسية */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .sum-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+        }
+
+        .sum-title {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .sum-val {
+            font-size: 22px;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* التبويبات البسيطة */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--muted);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: var(--card);
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        /* قائمة الصفقات المبسطة */
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .item-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+
+        .item-card:hover {
+            border-color: #2d3748;
+        }
+
+        .token-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .token-symbol {
+            font-weight: 800;
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .token-amount {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .profit-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .profit-green { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+        .profit-red { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gmgn-btn {
+            background: #1e2638;
+            color: #38bdf8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+        .gmgn-btn:hover {
+            background: #28334a;
+        }
+
+        .btn-close {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-buy {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .empty-box {
+            text-align: center;
+            padding: 40px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشريط العلوي -->
+    <header>
+        <div class="brand">
+            <h1>⚡ بوت سولانا</h1>
+            <span class="tag">محاكاة تجريبية (Paper)</span>
+        </div>
+        <div class="controls">
+            <button id="toggleBtn" class="btn btn-toggle" onclick="toggleTrading()">
+                التداول الآلي: شغال
+            </button>
+            <button class="btn btn-reset" onclick="resetAll()">تصفير المحفظة</button>
+        </div>
+    </header>
+
+    <!-- هدف التحدي: 1 → 10 SOL -->
+    <div class="sum-card" style="margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div class="sum-title" style="margin:0;">🎯 التحدي: <span id="goalLabel">1 → 10 SOL</span></div>
+            <div id="challengeStatus" style="font-size:13px; font-weight:700;"></div>
+        </div>
+        <div style="background:#0b0e14; border-radius:8px; height:14px; overflow:hidden;">
+            <div id="goalBar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--purple), var(--green)); transition: width .6s;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono', monospace;">
+            <span id="goalPct">0%</span>
+            <span id="multipleVal">x1.00</span>
+        </div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="sum-card">
+            <div class="sum-title">إجمالي المحفظة (نقد + صفقات)</div>
+            <div class="sum-val" id="equityVal" style="color: #38bdf8;">-- SOL</div>
+        </div>
+        <div class="sum-card">
+            <div class="sum-title">الربح / الخسارة المحققة</div>
+            <div class="sum-val" id="pnlVal">-- SOL</div>
+        </div>
+        <div class="sum-card">
+            <div class="sum-title">الصفقات الرابحة</div>
+            <div class="sum-val" id="winVal">--%</div>
+        </div>
+    </div>
+
+    <!-- التبويبات المبسطة -->
+    <div class="tabs">
+        <button id="tab1" class="tab-btn active" onclick="setTab('active')">الصفقات الحالية (<span id="activeCount">0</span>)</button>
+        <button id="tab2" class="tab-btn" onclick="setTab('radar')">عملات وجدها البوت (<span id="radarCount">0</span>)</button>
+        <button id="tab3" class="tab-btn" onclick="setTab('history')">الصفقات السابقة (<span id="historyCount">0</span>)</button>
+    </div>
+
+    <!-- 1. الصفقات المفتوحة -->
+    <div id="viewActive" class="items-list">
+        <div class="empty-box">جاري تحميل الصفقات...</div>
+    </div>
+
+    <!-- 2. العملات التي فحصها البوت -->
+    <div id="viewRadar" class="items-list" style="display: none;">
+        <div class="empty-box">جاري فحص شبكة سولانا...</div>
+    </div>
+
+    <!-- 3. الصفقات السابقة -->
+    <div id="viewHistory" class="items-list" style="display: none;">
+        <div class="empty-box">لا توجد صفقات سابقة بعد.</div>
+    </div>
+
+    <script>
+        let currentTab = 'active';
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab1').classList.toggle('active', tab === 'active');
+            document.getElementById('tab2').classList.toggle('active', tab === 'radar');
+            document.getElementById('tab3').classList.toggle('active', tab === 'history');
+
+            document.getElementById('viewActive').style.display = tab === 'active' ? 'flex' : 'none';
+            document.getElementById('viewRadar').style.display = tab === 'radar' ? 'flex' : 'none';
+            document.getElementById('viewHistory').style.display = tab === 'history' ? 'flex' : 'none';
+        }
+
+        async function updateData() {
+            try {
+                // 1. الرصيد والهدف
+                const st = await (await fetch('/api/status')).json();
+                document.getElementById('equityVal').innerText = st.equity_sol + ' SOL';
+                document.getElementById('goalLabel').innerText = `${st.initial_sol} → ${st.goal_sol} SOL`;
+                document.getElementById('goalBar').style.width = st.goal_progress_pct + '%';
+                document.getElementById('goalPct').innerText = `${st.goal_progress_pct}% من الهدف`;
+                document.getElementById('multipleVal').innerText = `x${st.multiple} | الصفقة القادمة: ${st.next_trade_size_sol} SOL`;
+                const cs = document.getElementById('challengeStatus');
+                if (st.challenge_status === 'goal_reached') { cs.innerText = '🏆 تم الوصول للهدف!'; cs.style.color = 'var(--green)'; }
+                else if (st.challenge_status === 'floor_hit') { cs.innerText = '🛑 توقف: وصل للحد الأدنى'; cs.style.color = 'var(--red)'; }
+                else { cs.innerText = '🟢 جارٍ'; cs.style.color = 'var(--muted)'; }
+
+                const pnl = st.realized_pnl_sol;
+                const pnlEl = document.getElementById('pnlVal');
+                pnlEl.innerText = (pnl >= 0 ? '+' : '') + pnl + ' SOL';
+                pnlEl.style.color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+
+                document.getElementById('winVal').innerText = `${st.win_rate_pct}% (${st.winning_trades}/${st.total_trades})`;
+
+                const toggleBtn = document.getElementById('toggleBtn');
+                if (st.auto_trading) {
+                    toggleBtn.className = 'btn btn-toggle';
+                    toggleBtn.innerText = 'التداول الآلي: شغال ✅';
+                } else {
+                    toggleBtn.className = 'btn btn-toggle off';
+                    toggleBtn.innerText = 'التداول الآلي: متوقف ⏸️';
+                }
+
+                // 2. الصفقات الحالية
+                const positions = await (await fetch('/api/positions')).json();
+                document.getElementById('activeCount').innerText = positions.length;
+                const activeBox = document.getElementById('viewActive');
+
+                if (positions.length === 0) {
+                    activeBox.innerHTML = '<div class="empty-box">لا توجد صفقات مفتوحة حالياً، البوت يبحث عن فرصة آمنة...</div>';
+                } else {
+                    activeBox.innerHTML = positions.map(p => {
+                        const roi = p.current_roi_pct || 0;
+                        const isPlus = roi >= 0;
+                        return `
+                            <div class="item-card">
+                                <div class="token-info">
+                                    <div class="token-symbol">${p.symbol}</div>
+                                    <div class="token-amount">${p.amount_sol} SOL</div>
+                                </div>
+                                <div class="profit-badge ${isPlus ? 'profit-green' : 'profit-red'}">
+                                    ${isPlus ? '+' : ''}${roi}%
+                                </div>
+                                <div class="item-actions">
+                                    <a href="${p.gmgn_url}" target="_blank" class="gmgn-btn">عرض على GMGN ↗</a>
+                                    <button class="btn-close" onclick="closePos('${p.token_address}')">بيع الآن</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // 3. رادار العملات
+                const cands = await (await fetch('/api/candidates')).json();
+                document.getElementById('radarCount').innerText = cands.length;
+                const radarBox = document.getElementById('viewRadar');
+
+                if (cands.length === 0) {
+                    radarBox.innerHTML = '<div class="empty-box">جاري فحص السوق...</div>';
+                } else {
+                    radarBox.innerHTML = cands.slice(0, 10).map(c => `
+                        <div class="item-card">
+                            <div class="token-info">
+                                <div class="token-symbol">${c.symbol}</div>
+                                <div class="token-amount">السيولة: $${Math.round(c.liquidity_usd).toLocaleString()}</div>
+                            </div>
+                            <div style="font-size: 13px; color: ${c.passed ? 'var(--green)' : 'var(--muted)'};">
+                                ${c.passed ? '✅ مؤهلة' : '❌ مستبعدة'}
+                            </div>
+                            <div class="item-actions">
+                                <a href="${c.gmgn_url}" target="_blank" class="gmgn-btn">GMGN ↗</a>
+                                <button class="btn-buy" onclick="quickBuy('${c.token_address}')">شراء تجريبي</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // 4. الصفقات السابقة
+                const trades = await (await fetch('/api/trades')).json();
+                document.getElementById('historyCount').innerText = trades.length;
+                const histBox = document.getElementById('viewHistory');
+
+                if (trades.length === 0) {
+                    histBox.innerHTML = '<div class="empty-box">لا توجد صفقات منتهية بعد.</div>';
+                } else {
+                    histBox.innerHTML = trades.slice(0, 15).map(t => {
+                        const isWin = t.pnl_sol >= 0;
+                        return `
+                            <div class="item-card">
+                                <div class="token-info">
+                                    <div class="token-symbol">${t.symbol}</div>
+                                    <div class="token-amount">${t.exit_reason.substring(0, 30)}</div>
+                                </div>
+                                <div class="profit-badge ${isWin ? 'profit-green' : 'profit-red'}">
+                                    ${isWin ? '+' : ''}${t.pnl_sol} SOL (${isWin ? '+' : ''}${t.pnl_pct}%)
+                                </div>
+                                <div class="item-actions">
+                                    <a href="${t.gmgn_url}" target="_blank" class="gmgn-btn">GMGN ↗</a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function toggleTrading() {
+            await fetch('/api/toggle-autotrade', { method: 'POST' });
+            updateData();
+        }
+
+        async function closePos(addr) {
+            await fetch('/api/close-position', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token_address: addr })
+            });
+            updateData();
+        }
+
+        async function quickBuy(addr) {
+            await fetch('/api/buy-manual', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token_address: addr })
+            });
+            setTab('active');
+            updateData();
+        }
+
+        async function resetAll() {
+            if (confirm('بدء التحدي من جديد برصيد 1 SOL؟ (سيتم مسح السجل)')) {
+                await fetch('/api/reset', { method: 'POST' });
+                updateData();
+            }
+        }
+
+        updateData();
+        setInterval(updateData, 3000);
+    </script>
+</body>
+</html>
